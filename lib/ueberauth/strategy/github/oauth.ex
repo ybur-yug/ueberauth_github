@@ -34,7 +34,8 @@ defmodule Ueberauth.Strategy.Github.OAuth do
       |> Keyword.merge(config)
       |> Keyword.merge(opts)
 
-    OAuth2.Client.new(client_opts)
+    client_module = Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client)
+    client_module.new(client_opts)
   end
 
   @doc """
@@ -50,7 +51,7 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     [token: token]
     |> client
     |> put_param("client_secret", client().client_secret)
-    |> OAuth2.Client.get(url, headers, opts)
+    |> Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client).get(url, headers, opts)
   end
 
   def get_token!(params \\ [], options \\ []) do

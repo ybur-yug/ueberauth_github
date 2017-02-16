@@ -66,7 +66,7 @@ defmodule Ueberauth.Strategy.Github do
           github: { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] }
         ]
 
-  Deafult is "user,public_repo"
+  Default is "user,public_repo"
   """
   use Ueberauth.Strategy, uid_field: :login,
                           default_scope: "user,public_repo",
@@ -133,6 +133,7 @@ defmodule Ueberauth.Strategy.Github do
       conn
       |> option(:uid_field)
       |> to_string
+
     conn.private.github_user[user]
   end
 
@@ -143,7 +144,6 @@ defmodule Ueberauth.Strategy.Github do
     token        = conn.private.github_token
     scope_string = (token.other_params["scope"] || "")
     scopes       = String.split(scope_string, ",")
-
     %Credentials{
       token: token.access_token,
       refresh_token: token.refresh_token,
@@ -214,7 +214,11 @@ defmodule Ueberauth.Strategy.Github do
     end
   end
 
-  defp option(conn, key) do
-    Keyword.get(options(conn), key, Keyword.get(default_options(), key))
+  def option(conn, key) do
+    defaults = Application.get_env(:ueberauth_github, :oauth2_module, Keyword.get(default_options(), key))
+
+    conn
+    |> options
+    |> Keyword.get(key, defaults)
   end
 end
