@@ -23,6 +23,10 @@ end
 defmodule TestOAuthClient do
   def new(_opts), do: %OAuth2.Client{}
   def get(_token, _url, _headers, _opts), do: {:ok, %OAuth2.Response{status_code: 200, body: %{emails: "foo@bar.com"}}}
+  def authorize_url!(_, _), do: "/oauth/authorize?client_id=&redirect_uri=&response_type=code"
+  def get_token!(client, params, headers, opts) do
+    %{client | headers: [], params: %{}, token: %TestOAuthToken{}}
+  end
 end
 
 defmodule TestOAuth do

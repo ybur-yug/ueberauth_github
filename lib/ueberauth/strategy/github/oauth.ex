@@ -28,13 +28,13 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   These options are only useful for usage outside the normal callback phase of Ueberauth.
   """
   def client(opts \\ []) do
-    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Github.OAuth)
+    client_module = Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client)
+    config        = Application.get_env(:ueberauth, Ueberauth.Strategy.Github.OAuth)
     client_opts =
       @defaults
       |> Keyword.merge(config)
       |> Keyword.merge(opts)
 
-    client_module = Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client)
     client_module.new(client_opts)
   end
 
@@ -42,9 +42,11 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   Provides the authorize url for the request phase of Ueberauth. No need to call this usually.
   """
   def authorize_url!(params \\ [], opts \\ []) do
+    client_module = Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client)
+
     opts
     |> client
-    |> OAuth2.Client.authorize_url!(params)
+    |> client_module.authorize_url!(params)
   end
 
   def get(token, url, headers \\ [], opts \\ []) do
@@ -55,10 +57,11 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   end
 
   def get_token!(params \\ [], options \\ []) do
+    client_module  = Application.get_env(:ueberauth_github, :oauth2_client, OAuth2.Client)
     headers        = Keyword.get(options, :headers, [])
     options        = Keyword.get(options, :options, [])
     client_options = Keyword.get(options, :client_options, [])
-    client         = OAuth2.Client.get_token!(client(client_options), params, headers, options)
+    client         = client_module.get_token!(client(client_options), params, headers, options)
     client.token
   end
 
